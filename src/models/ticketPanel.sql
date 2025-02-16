@@ -1,9 +1,8 @@
-CREATE TABLE IF NOT EXISTS ticketPanel (
-    uuid VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS ticket_panels (
+    uuid VARCHAR(255) NOT NULL PRIMARY KEY,
+    messageID VARCHAR(255) NOT NULL,
     channelID VARCHAR(255) NOT NULL,
-    embed JSON NOT NULL,
-    categories JSON,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (uuid),
-    INDEX (uuid)
+    embed TEXT NOT NULL,
+    categories TEXT DEFAULT '[]',
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

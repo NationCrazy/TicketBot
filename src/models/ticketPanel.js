@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
-const { buttons } = require('../main');
 
 const ticketPanelSchema = new mongoose.Schema({
     uuid: {
         type: String,
         index: true,
+        required: true
+    },
+    messageID: {
+        type: String,
         required: true
     },
     channelID: {

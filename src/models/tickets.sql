@@ -1,11 +1,10 @@
 CREATE TABLE IF NOT EXISTS tickets (
-    uuid VARCHAR(255) NOT NULL,
+    uuid VARCHAR(255) NOT NULL PRIMARY KEY,
     createdBy VARCHAR(255) NOT NULL,
     category VARCHAR(255) NOT NULL,
     channelID VARCHAR(255) NOT NULL,
     claimedBy VARCHAR(255),
     status VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (uuid),
-    INDEX (uuid)
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_tickets_uuid ON tickets(uuid);
