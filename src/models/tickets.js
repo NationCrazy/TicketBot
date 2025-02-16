@@ -18,6 +18,10 @@ const ticketsSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    addedUsers: {
+        type: Array,
+        required: false
+    },
     claimedBy: {
         type: String,
         required: false

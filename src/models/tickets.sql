@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     createdBy VARCHAR(255) NOT NULL,
     category VARCHAR(255) NOT NULL,
     channelID VARCHAR(255) NOT NULL,
+    addedUsers TEXT DEFAULT '[]',
     claimedBy VARCHAR(255),
     status VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
