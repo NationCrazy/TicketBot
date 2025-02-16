@@ -83,13 +83,12 @@ module.exports = {
 
         if (group === 'category') {
             if (subcommand === 'add') {
-                await interaction.deferReply({ ephemeral: true });
                 const messageId = interaction.options.getString('messageid');
                 const category = interaction.options.getChannel('category');
 
                 switch (dbType) {
                     case 'mongodb': {
-                        const ticketPanel = await ticketPanelModel.findOne({ messageId });
+                        const ticketPanel = await ticketPanelModel.findOne({ messageID: messageId });
 
                         if (!ticketPanel) {
                             await interaction.editReply({ content: 'Ticket panel not found', ephemeral: true });
@@ -97,8 +96,14 @@ module.exports = {
                         }
 
                         const modal = new ModalBuilder()
-                            .setCustomId(`addTicketPanel_${ticketPanel.uuid}_${category.id}`)
+                            .setCustomId(`addTicketPanel_${messageId}_${category.id}`)
                             .setTitle('Add Category');
+
+                        const descriptionInput = new TextInputBuilder()
+                            .setCustomId('description')
+                            .setLabel('Embed Description')
+                            .setStyle(TextInputStyle.Paragraph)
+                            .setRequired(true);
 
                         const textInput = new TextInputBuilder()
                             .setCustomId('text')
@@ -119,11 +124,12 @@ module.exports = {
                             .setPlaceholder('PRIMARY, SECONDARY, SUCCESS, DANGER')
                             .setRequired(true);
 
+                        const descriptionRow = new ActionRowBuilder().addComponents(descriptionInput);
                         const textRow = new ActionRowBuilder().addComponents(textInput);
                         const emojiRow = new ActionRowBuilder().addComponents(emojiInput);
                         const styleRow = new ActionRowBuilder().addComponents(styleInput);
 
-                        modal.addComponents(textRow, emojiRow, styleRow);
+                        modal.addComponents(descriptionRow, textRow, emojiRow, styleRow);
 
                         await interaction.showModal(modal);
                         break;
@@ -182,7 +188,7 @@ module.exports = {
 
                 switch (dbType) {
                     case 'mongodb': {
-                        const ticketPanel = await ticketPanelModel.findOne({ messageId });
+                        const ticketPanel = await ticketPanelModel.findOne({ messageID: messageId });
 
                         if (!ticketPanel) {
                             await interaction.editReply({ content: 'Ticket panel not found', ephemeral: true });
@@ -277,7 +283,7 @@ module.exports = {
 
                     switch (dbType) {
                         case 'mongodb': {
-                            const ticketPanel = await ticketPanelModel.findOne({ messageId });
+                            const ticketPanel = await ticketPanelModel.findOne({ messageID: messageId });
 
                             if (!ticketPanel) {
                                 await interaction.editReply({ content: 'Ticket panel not found', ephemeral: true });

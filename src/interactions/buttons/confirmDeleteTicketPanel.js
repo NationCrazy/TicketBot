@@ -18,10 +18,14 @@ module.exports = {
 
                 await ticketPanelModel.deleteOne({ uuid: ticketUUID })
 
-                const message = await interaction.channel.messages.fetch(ticketPanel.messageId).catch(() => null);
-                if (message) await message.delete().catch(() => null);
+                try {
+                    const message = await interaction.channel.messages.fetch(ticketPanel.messageID);
+                    if (message) await message.delete();
+                } catch (error) {
+                    // Ignore any errors when fetching or deleting the message
+                }
 
-                await interaction.update({ content: 'Ticket Panel Deleted', ephmeral: true });
+                await interaction.update({ embeds: [], components: [], content: 'Ticket Panel Deleted', ephmeral: true });
                 break;
             }
             default: {
@@ -32,12 +36,16 @@ module.exports = {
                     return;
                 }
 
-                const message = await interaction.channel.messages.fetch(ticketPanel[0].messageId).catch(() => null);
-                if (message) await message.delete().catch(() => null);
+                try {
+                    const message = await interaction.channel.messages.fetch(ticketPanel[0].messageId);
+                    if (message) await message.delete();
+                } catch (error) {
+                    // Ignore any errors when fetching or deleting the message
+                }
 
                 await query('DELETE FROM ticket_panels WHERE uuid = ?', [ticketUUID]);
 
-                await interaction.update({ content: 'Ticket Panel Deleted', ephmeral: true });
+                await interaction.update({ embeds: [], components: [], content: 'Ticket Panel Deleted', ephmeral: true });
             }
         }
     }

@@ -42,7 +42,7 @@ module.exports = {
                 } else {
                     await message.edit({ embeds: [embed], components: [] });
                 }
-                await interaction.update({ content: `Category \`${category}\` deleted from ticket panel \`${ticketPanel.uuid}\``, ephemeral: true });
+                await interaction.update({ embeds: [], components: [], content: `Category \`${category}\` deleted from ticket panel \`${ticketPanel.uuid}\``, ephemeral: true });
                 break;
             }
             default: {
@@ -77,7 +77,7 @@ module.exports = {
                 } else {
                     await message.edit({ embeds: [embed], components: [] });
                 }
-                await interaction.update({ content: `Category \`${category}\` deleted from ticket panel \`${ticketPanel.uuid}\``, ephemeral: true });
+                await interaction.update({ embeds: [], components: [], content: `Category \`${category}\` deleted from ticket panel \`${ticketPanel.uuid}\``, ephemeral: true });
             }
         }
     }

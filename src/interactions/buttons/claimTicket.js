@@ -9,7 +9,7 @@ module.exports = {
 
         switch (dbType) {
             case 'mongodb': {
-                const ticket = await ticketsModel.findOne({ ticketId });
+                const ticket = await ticketsModel.findOne({ uuid: ticketId });
 
                 if (!ticket) {
                     await interaction.reply({ content: 'Ticket not found', ephemeral: true });

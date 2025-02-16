@@ -1,6 +1,7 @@
 const { ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const uuid = require('uuid');
 
+const ticketPanelModel = require('../../models/ticketPanel');
 const ticketsModel = require('../../models/tickets');
 const { query, dbType } = require('../../utils/database');
 
@@ -20,7 +21,15 @@ module.exports = {
                     return;
                 }
 
-                const categories = JSON.parse(ticketPanel.categories);
+                let categories;
+                try {
+                    categories = typeof ticketPanel.categories === 'string' ? 
+                        JSON.parse(ticketPanel.categories) : ticketPanel.categories;
+                } catch (error) {
+                    await interaction.reply({ content: 'Invalid ticket panel configuration', ephemeral: true });
+                    return;
+                }
+
                 const category = categories.find(cat => cat.id === categoryID);
 
                 const ticketId = uuid.v4().substring(0, 8);
@@ -91,7 +100,15 @@ module.exports = {
                     return;
                 }
 
-                const categories = JSON.parse(ticketPanel.categories);
+                let categories;
+                try {
+                    categories = typeof ticketPanel.categories === 'string' ? 
+                        JSON.parse(ticketPanel.categories) : ticketPanel.categories;
+                } catch (error) {
+                    await interaction.reply({ content: 'Invalid ticket panel configuration', ephemeral: true });
+                    return;
+                }
+
                 const category = categories.find(cat => cat.id === categoryID);
 
                 const ticketId = uuid.v4().substring(0, 8);
