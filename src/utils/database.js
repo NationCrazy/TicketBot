@@ -8,15 +8,19 @@ const path = require("path");
 const dbType = process.env.DB_TYPE || "sqlite";
 let db;
 
-const log  = require("./log");
+const log = require("./log");
+
+const dataDir = path.join(__dirname, '../data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir);
+}
 
 async function executeSQLFiles(dbInstance) {
-    const schemaPath = path.join(__dirname, "models");
+    const schemaPath = path.join(__dirname, "/../", "models");
     const sqlFiles = fs.readdirSync(schemaPath).filter(file => file.endsWith(".sql"));
 
     for (const file of sqlFiles) {
         const sql = fs.readFileSync(path.join(schemaPath, file), "utf-8");
-        // log.info(`📂 Executing ${file}...`);
         if (dbType === "mysql") await dbInstance.execute(sql);
         else dbInstance.run(sql);
     }
@@ -37,7 +41,7 @@ async function connectDB() {
         log.info("✅ Connected to MySQL");
         await executeSQLFiles(db);
     } else if (dbType === "sqlite") {
-        db = new sqlite3.Database('../data/db.sqlite', (err) => {
+        db = new sqlite3.Database(path.join(dataDir, 'db.sqlite'), (err) => {
             if (err) console.error(err.message);
             else log.info("✅ Connected to SQLite");
         });
@@ -47,4 +51,18 @@ async function connectDB() {
     }
 }
 
-module.exports = { connectDB, db, dbType };
+async function query(sql, params) {
+    if (dbType === 'mysql') {
+        return await db.execute(sql, params);
+    } else if (dbType === 'sqlite') {
+        return new Promise((resolve, reject) => {
+            db.get(sql, params, (err, row) => {
+                if (err) reject(err);
+                resolve(row);
+            });
+        });
+    }
+}
+
+module.exports = { connectDB, dbType, query };
+connectDB();
