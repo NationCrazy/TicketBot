@@ -22,7 +22,7 @@ module.exports = async (client) => {
 
         if (file.data) {
             arrayOfSlashCommands.push(file.data.toJSON());
-            log.info(`${file.data.name} loaded`);
+            log.info(`Loaded Slash: ${file.data.name}`);
         }
     });
 
