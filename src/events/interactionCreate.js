@@ -1,4 +1,4 @@
-const { log } = require('../utils/logger');
+const log = require('../utils/log');
 
 const fs = require('fs');
 const path = require('path');
@@ -7,87 +7,77 @@ const buttonHandlers = new Map();
 const buttonFiles = fs.readdirSync(path.join(__dirname, '../interactions/buttons')).filter(file => file.endsWith('.js'));
 for (const file of buttonFiles) {
     const button = require(`../interactions/buttons/${file}`);
-    buttonHandlers.set(button.customId, button);
-    log.info(`Loaded Button: ${button.customId}`, 'info');
+    buttonHandlers.set(button.id, button);
+    log.info(`Loaded Button: ${button.id}`, 'info');
 }
 
 const selectMenuHandlers = new Map();
 const selectMenuFiles = fs.readdirSync(path.join(__dirname, '../interactions/selectMenus')).filter(file => file.endsWith('.js'));
 for (const file of selectMenuFiles) {
     const menu = require(`../interactions/selectMenus/${file}`);
-    selectMenuHandlers.set(menu.customId, menu);
-    log.info(`Loaded Select Menu: ${menu.customId}`, 'info');
+    selectMenuHandlers.set(menu.id, menu);
+    log.info(`Loaded Select Menu: ${menu.id}`, 'info');
 }
 
 const modalHandlers = new Map();
 const modalFiles = fs.readdirSync(path.join(__dirname, '../interactions/modals')).filter(file => file.endsWith('.js'));
 for (const file of modalFiles) {
     const modal = require(`../interactions/Modals/${file}`);
-    modalHandlers.set(modal.customId, modal);
-    log.info(`Loaded Modal: ${modal.customId}`, 'info');
+    modalHandlers.set(modal.id, modal);
+    log.info(`Loaded Modal: ${modal.id}`, 'info');
 }
 
 module.exports = (client) => {
     client.on("interactionCreate", async (interaction) => {
 
         if (interaction.isButton()) {
-            const [baseId] = interaction.customId.split('_');
+            const baseId = interaction.customId.split('_')[0];
             const handler = buttonHandlers.get(baseId);
             if (handler) {
-                await handler.run(client, interaction);
+                const member = interaction.member;
+                const role = client.settings.perms.buttons[baseId];
+
+                if (role && !member.roles.cache.has(role)) {
+                    return interaction.reply({ content: "You don't have permission to use this button.", ephemeral: true });
+                }
+
+                await handler.run(interaction, client);
             }
         }
 
         if (interaction.isStringSelectMenu()) {
-            const handler = selectMenuHandlers.get(interaction.customId);
+            const baseId = interaction.customId.split('_')[0];
+            const handler = selectMenuHandlers.get(baseId);
             if (handler) {
-                await handler.run(client, interaction);
+                await handler.run(interaction, client);
             }
         }
 
         if (interaction.isModalSubmit()) {
-            const handler = modalHandlers.get(interaction.customId);
+            const baseId = interaction.customId.split('_')[0];
+            const handler = modalHandlers.get(baseId);
             if (handler) {
-                await handler.run(client, interaction);
+                await handler.run(interaction, client);
             }
         }
-
+        
         if (interaction.isCommand()) {
-            if (!client.settings.roles) {
-                return interaction.reply({ content: 'No roles set in permission. Set them in the config.', ephemeral: true });
-            }
-        
-            const user = interaction.user;
-            const guild = client.guilds.cache.get(process.env.GUILD_ID);
-            const roleIds = client.settings.roles;
-            const roles = await Promise.all(roleIds.map(id => guild.roles.fetch(id)));
-            const role = roles.map(role => role.id);
-            const member = await guild.members.fetch(user.id);
-            const commandName = interaction.commandName;
-        
-            if (!member.roles.cache.has(role[0])) {
-                return interaction.reply({ content: 'You do not have the correct roles for this command.', ephemeral: true });
-            }
-        
             const command = client.slashCommands.get(interaction.commandName);
             if (!command) {
                 return interaction.reply({ content: "Invalid command", ephemeral: true });
             }
         
-            if (client.settings.commandPerms[commandName] && client.settings.commandPerms[commandName]) {
-                const requiredRoles = client.settings.commandPerms[commandName];
-                const hasPermission = requiredRoles.some(roleId => member.roles.cache.has(roleId));
-        
-                if (!hasPermission) {
-                    return interaction.reply({ content: 'You do not have the correct roles for this command.', ephemeral: true });
-                }
-            }
             try {
-                await interaction.deferReply({ ephemeral: true });
-                await command.run(client, interaction, interaction.options.data);
+                const member = interaction.member;
+                const role = client.settings.perms.commands[interaction.commandName];
+
+                if (role && !member.roles.cache.has(role)) {
+                    return interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true });
+                }
+
+                await command.run(interaction, client);
             } catch (error) {
-                await log(`[Slash] ${interaction.user.tag} used ${interaction.commandName} which caused an error ${error}`, 'error')
-                await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
+                log.error(`An error occured when running ${interaction.commandName} executed by ${interaction.user.tag}:\n${error}`);
             }
         }
     });

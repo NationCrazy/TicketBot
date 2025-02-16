@@ -1,0 +1,12 @@
+{
+    "embedColor": "#000000",
+    "supportRole": "1268424892777234504",
+    "perms": {
+        "buttons": {
+            "claimTicket": "1268424892777234504"
+        },
+        "commands": {
+            "ticket": "1268424892777234504"
+        }
+    }
+}
