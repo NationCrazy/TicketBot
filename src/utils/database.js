@@ -28,7 +28,7 @@ async function executeSQLFiles(dbInstance) {
 
 async function connectDB() {
     if (dbType === "mongodb") {
-        await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect(process.env.MONGO_URI);
         log.info("✅ Connected to MongoDB");
         db = mongoose;
     } else if (dbType === "mysql") {
