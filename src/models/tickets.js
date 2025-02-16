@@ -24,7 +24,8 @@ const ticketsSchema = new mongoose.Schema({
     },
     claimedBy: {
         type: String,
-        required: false
+        required: false,
+        default: null
     },
     status: {
         type: String,
